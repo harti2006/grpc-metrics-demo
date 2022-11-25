@@ -67,4 +67,23 @@ class GrpcMetricsDemoApplicationTests {
 
         assertThatCountMeasurement(getJsonContent(sayHelloProcessingMetrics + "&tag=statusCode:NOT_FOUND")).isEqualTo(1.0);
     }
+
+    @Test
+    void reproduceBugWithoutGrpcAdvice() {
+        String sayGoodByeProcessingMetrics = "/actuator/metrics/grpc.server.processing.duration?tag=method:SayGoodBye&tag=service:com.github.harti2006.grpc.example.MyService";
+        assertThatCountMeasurement(getJsonContent(sayGoodByeProcessingMetrics)).isEqualTo(0.0);
+
+        try {
+            //noinspection ResultOfMethodCallIgnored
+            myServiceStub.sayGoodBye(HelloRequest.getDefaultInstance());
+        } catch (StatusRuntimeException e) {
+            assertThat(e.getStatus().getCode()).isEqualTo(Status.Code.NOT_FOUND);
+        }
+
+        assertThatCountMeasurement(getJsonContent(sayGoodByeProcessingMetrics)).isEqualTo(1.0);
+
+        assertThatCountMeasurement(getJsonContent(sayGoodByeProcessingMetrics + "&tag=statusCode:OK")).isEqualTo(0.0);
+
+        assertThatCountMeasurement(getJsonContent(sayGoodByeProcessingMetrics + "&tag=statusCode:NOT_FOUND")).isEqualTo(1.0);
+    }
 }

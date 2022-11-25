@@ -8,6 +8,7 @@ option java_outer_classname = "HelloWorldProto";
 
 service MyService {
   rpc SayHello (HelloRequest) returns (HelloReply) {}
+  rpc SayGoodBye (HelloRequest) returns (HelloReply) {}
 }
 
 message HelloRequest {}
